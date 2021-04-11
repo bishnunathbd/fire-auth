@@ -11,9 +11,21 @@ if (firebase.apps.length === 0) {
 }
 
 function App() {
+  // google sign-in
+  const googleProvider = new firebase.auth.GoogleAuthProvider();
+  const handleGoogleSignIn = () => {
+    firebase.auth()
+      .signInWithPopup(googleProvider)
+      .then(result => {
+        const {displayName, photoURL, email} = result.user;
+        console.log(displayName, email, photoURL);
+      })
+  }
+
+
   return (
     <div className="App">
-      
+      <button onClick={handleGoogleSignIn}>Google Sign In</button>
     </div>
   );
 }
