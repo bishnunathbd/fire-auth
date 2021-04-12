@@ -16,6 +16,7 @@ function App() {
     isSignedIn: false,
     name: '',
     email: '',
+    password: '',
     photo: ''
   })
 
@@ -26,7 +27,7 @@ function App() {
       .signInWithPopup(googleProvider)
       .then(result => {
         // The signed-in user info.
-        const {displayName, photoURL, email} = result.user;
+        const { displayName, photoURL, email } = result.user;
         const signedInUser = {
           isSignedIn: true,
           name: displayName,
@@ -61,15 +62,19 @@ function App() {
   }
 
   const handleBlur = (e) => {
-    // console.log(e.target.name, e.target.value);
+    let isFieldValid = true;
     if (e.target.name === 'email') {
-      const isEmailValid = /\S+@\S+\.\S+/.test(e.target.value)
-      console.log(isEmailValid);
+      isFieldValid = /\S+@\S+\.\S+/.test(e.target.value);
     }
     if (e.target.name === 'password') {
       const passwordLength = e.target.value.length > 6;
       const passwordHasNumber = /\d{1}/.test(e.target.value)
-      console.log(passwordLength && passwordHasNumber);
+      isFieldValid = passwordLength && passwordHasNumber;
+    }
+    if (isFieldValid) {
+      const newUserInfo = { ...user };
+      newUserInfo[e.target.name] = e.target.value;
+      setUser(newUserInfo);
     }
   }
 
@@ -79,26 +84,33 @@ function App() {
 
   return (
     <div className="App">
-      { 
+      {
         user.isSignedIn ? <button onClick={handleSignOut}>Sign out</button>
-        : <button onClick={handleGoogleSignIn}>Google Sign In</button>
+          : <button onClick={handleGoogleSignIn}>Google Sign In</button>
       }
       {
         user.isSignedIn && <div>
           <p>Welcome, {user.name}</p>
           <p>Email: {user.email}</p>
-          <img src={user.photo} alt=""/>
+          <img src={user.photo} alt="" />
         </div>
       }
-      <h2>Our own authentication</h2>
-      <form onSubmit={handleSubmit} style={{border: '2px solid purple'}}>
-        <input type="text" name='email' onBlur={handleBlur} placeholder='Your email' required/>
-        <br/> <br/>
-        <input type="password" name="password" onBlur={handleBlur} id="" placeholder='Your password' required/>
-        <br/> <br/>
-        <input type="submit" value="Submit"/>
-      </form>
-      
+      <div style={{ border: '2px solid purple', width: '50%', margin: '20px auto', padding: '20px' }}>
+        <h2>Our own authentication</h2>
+        <p>Name: {user.name}</p>
+        <p>Email: {user.email}</p>
+        <p>Password: {user.password}</p>
+        <form onSubmit={handleSubmit}>
+          <input name='name' onBlur={handleBlur} type="text" placeholder='your name'/>
+          <br/> <br/>
+          <input type="text" name='email' onBlur={handleBlur} placeholder='Your email' required />
+          <br /> <br />
+          <input type="password" name="password" onBlur={handleBlur} id="" placeholder='Your password' required />
+          <br /> <br />
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
+
     </div>
   );
 }
