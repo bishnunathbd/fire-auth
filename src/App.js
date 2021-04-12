@@ -4,6 +4,7 @@ import firebase from "firebase/app";
 // Add the Firebase products that you want to use
 import "firebase/auth";
 import firebaseConfig from './firebase.config';
+import { useState } from 'react';
 
 // Initialize Firebase
 if (firebase.apps.length === 0) {
@@ -11,6 +12,13 @@ if (firebase.apps.length === 0) {
 }
 
 function App() {
+  const [user, setUser] = useState({
+    isSignedIn: false,
+    name: '',
+    email: '',
+    photo: ''
+  })
+
   // google sign-in
   const googleProvider = new firebase.auth.GoogleAuthProvider();
   const handleGoogleSignIn = () => {
@@ -18,14 +26,30 @@ function App() {
       .signInWithPopup(googleProvider)
       .then(result => {
         const {displayName, photoURL, email} = result.user;
-        console.log(displayName, email, photoURL);
+        const signedInUser = {
+          isSignedIn: true,
+          name: displayName,
+          email: email,
+          photo: photoURL
+        };
+        setUser(signedInUser);
+      })
+      .catch(err => {
+        console.log(err);
+        console.log(err.message);
       })
   }
-
 
   return (
     <div className="App">
       <button onClick={handleGoogleSignIn}>Google Sign In</button>
+      {
+        user.isSignedIn && <div>
+          <p>Welcome, {user.name}</p>
+          <p>Email: {user.email}</p>
+          <img src={user.photo} alt=""/>
+        </div>
+      }
     </div>
   );
 }
