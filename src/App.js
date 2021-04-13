@@ -12,6 +12,7 @@ if (firebase.apps.length === 0) {
 }
 
 function App() {
+  const [newUser, setNewUser] = useState(false);
   const [user, setUser] = useState({
     isSignedIn: false,
     name: '',
@@ -85,23 +86,42 @@ function App() {
 
   //password authentication with firebase
   const handleSubmit = (e) => {
-    if (user.email && user.password) {
+    // create User With Email And Password
+    if (newUser && user.email && user.password) {
       firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
         .then((userCredential) => {
-          const newUserInfo = {...user};
+          const newUserInfo = { ...user };
           newUserInfo.success = true;
           newUserInfo.error = '';
           setUser(newUserInfo);
         })
         .catch((error) => {
           const errorMessage = error.message;
-          const newUserInfo = {...user};
+          const newUserInfo = { ...user };
           newUserInfo.error = errorMessage;
           newUserInfo.success = false;
           setUser(newUserInfo);
         });
     }
-    e.preventDefault(); 
+
+    // sign In With Email And Password
+    if (!newUser && user.email && user.password) {
+      firebase.auth().signInWithEmailAndPassword(user.email, user.password)
+        .then((userCredential) => {
+          const newUserInfo = { ...user };
+          newUserInfo.success = true;
+          newUserInfo.error = '';
+          setUser(newUserInfo);
+        })
+        .catch((error) => {
+          const errorMessage = error.message;
+          const newUserInfo = { ...user };
+          newUserInfo.error = errorMessage;
+          newUserInfo.success = false;
+          setUser(newUserInfo);
+        });
+    }
+    e.preventDefault();
   }
 
   return (
@@ -119,22 +139,23 @@ function App() {
       }
       <div style={{ border: '2px solid purple', width: '50%', margin: '20px auto', padding: '20px' }}>
         <h2>Our own authentication</h2>
-
+        <input type="checkbox" name="newUser" onChange={() => setNewUser(!newUser)} id="" />
+        <label htmlFor="newUser">New user sign up</label>
+        <br/><br/>
         <form onSubmit={handleSubmit}>
-          <input name='name' onBlur={handleBlur} type="text" placeholder='your name' />
-          <br /> <br />
+          {newUser && <input name='name' onBlur={handleBlur} type="text" placeholder='your name' />}
+          <br /><br />
           <input type="text" name='email' onBlur={handleBlur} placeholder='Your email' required />
           <br /> <br />
           <input type="password" name="password" onBlur={handleBlur} id="" placeholder='Your password' required />
           <br /> <br />
           <input type="submit" value="Submit" />
         </form>
-        <p style={{color: 'red'}}>{user.error}</p>
+        <p style={{ color: 'red' }}>{user.error}</p>
         {
-          user.success && <p style={{color: 'green'}}>User created successfully.</p>
+          user.success && <p style={{ color: 'green' }}>User {newUser ? 'created' : 'logged in'} successfully.</p>
         }
       </div>
-
     </div>
   );
 }
