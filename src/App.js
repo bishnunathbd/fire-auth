@@ -94,6 +94,7 @@ function App() {
           newUserInfo.success = true;
           newUserInfo.error = '';
           setUser(newUserInfo);
+          updateUserName(user.name);
         })
         .catch((error) => {
           const errorMessage = error.message;
@@ -112,6 +113,7 @@ function App() {
           newUserInfo.success = true;
           newUserInfo.error = '';
           setUser(newUserInfo);
+          console.log('sign in user info', userCredential.user);
         })
         .catch((error) => {
           const errorMessage = error.message;
@@ -122,6 +124,19 @@ function App() {
         });
     }
     e.preventDefault();
+  }
+
+  // Update a user's profile to firebase
+  const updateUserName = name => {
+    const user = firebase.auth().currentUser;
+
+    user.updateProfile({
+      displayName: name
+    }).then(function () {
+      console.log('user name updated successfully.');
+    }).catch(function (error) {
+      console.log(error);
+    });
   }
 
   return (
@@ -141,7 +156,7 @@ function App() {
         <h2>Our own authentication</h2>
         <input type="checkbox" name="newUser" onChange={() => setNewUser(!newUser)} id="" />
         <label htmlFor="newUser">New user sign up</label>
-        <br/><br/>
+        <br /><br />
         <form onSubmit={handleSubmit}>
           {newUser && <input name='name' onBlur={handleBlur} type="text" placeholder='your name' />}
           <br /><br />
@@ -149,7 +164,7 @@ function App() {
           <br /> <br />
           <input type="password" name="password" onBlur={handleBlur} id="" placeholder='Your password' required />
           <br /> <br />
-          <input type="submit" value="Submit" />
+          <input type="submit" value={newUser ? 'Sign up' : 'Sign in'} />
         </form>
         <p style={{ color: 'red' }}>{user.error}</p>
         {
